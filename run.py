@@ -24,9 +24,14 @@ subprocess.run(["echo $FSLOUTPUTTYPE"],
 def main(context: GearToolkitContext) -> None:
     # """Parses metadata in the SDK to determine which template to use for the subject VBM analysis"""
     print("pulling metadata...")
-    subject_label, session_label = get_metadata()
-
-    print("running ants vbm script...")
+    try:
+        subject_label, session_label = get_metadata()
+    except:
+        log.warning("No subject/session label - probably not running in flywheel")
+        subject_label = "subject_label"
+        session_label = "session_label"
+                    
+    log.info("running ants vbm script...")
     # vbm(subject_label, session_label)
     
     command = vbm(subject_label, session_label) #"/flywheel/v0/app/main.py"
@@ -44,7 +49,7 @@ def main(context: GearToolkitContext) -> None:
 if __name__ == "__main__":  # pragma: no cover
     # Get access to gear config, inputs, and sdk client if enabled.
     with GearToolkitContext() as gear_context:
-
+        gear_context.debug = True
         # Initialize logging, set logging level based on `debug` configuration
         # key in gear config.
         gear_context.init_logging()
